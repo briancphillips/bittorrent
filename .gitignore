@@ -2,7 +2,15 @@
 /__pycache__/*
 /Downloads/
 /Downloads/*
+/Lib/
+/Lib/*
+/Include/
+/Include/*
+/Scripts/
+/Scripts/*
 test.torrent
 /bittorrent/
 *.torrent
 *.iso
+pyvenv.cfg
+.vscode/settings.json
