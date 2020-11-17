@@ -10,7 +10,6 @@
 /Scripts/*
 test.torrent
 /bittorrent/
-*.torrent
 *.iso
 pyvenv.cfg
 .vscode/*

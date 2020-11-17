@@ -18,7 +18,7 @@ tracker = TrackerServer(local_addr=('0.0.0.0', 2255), loop=loop)
 logger.info(":: Setting up tracker at 0.0.0.0:2255 ...")
 asyncio.ensure_future(tracker.start())
 try:
-	logger.info(":: Server started ... 'udp://your.server.ip.or.domain:2255'")
+	logger.info(":: Server started ... 'udp://bucketvids.com:2255'")
 	loop.run_forever()
 except KeyboardInterrupt:
 	logger.exception(":: Server stopped! ...")
