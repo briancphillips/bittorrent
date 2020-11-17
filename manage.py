@@ -6,8 +6,8 @@ from queue import Queue
 from threading import Thread, Lock, activeCount
 import os
 
-from filemanager import FileManager
-from filewriter import FileWriter
+from util.filemanager import FileManager
+from util.filewriter import FileWriter
 
 class Connection(object):
     # Class to manage connections with peers

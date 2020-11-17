@@ -1,6 +1,6 @@
 from bcoding import bencode, bdecode
 from torrent import Torrent
-from fileinfo import File, FileStructure
+from util.fileinfo import File, FileStructure
 
 class ParseTorrent(object):
 

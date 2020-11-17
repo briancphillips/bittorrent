@@ -3,7 +3,7 @@ from parse import ParseTorrent
 from torrent import Torrent
 from tracker_connect import TrackerConnect
 from manage import Connection
-from filemanager import FileManager
+from util.filemanager import FileManager
 
 
 if __name__ == '__main__':
