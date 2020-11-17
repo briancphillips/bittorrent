@@ -1,0 +1,9 @@
+asynctest==0.5.0
+bcoding==1.5
+certifi==2020.11.8
+chardet==3.0.4
+idna==2.10
+keyboard==0.13.5
+pybtracker==0.2.4
+requests==2.25.0
+urllib3==1.26.2
