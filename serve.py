@@ -2,7 +2,7 @@ from pybtracker import TrackerServer
 import asyncio
 import logging
 
-logger = logging.getLogger('udp_tracker_server')
+logger = logging.getLogger('udp_srv')
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)

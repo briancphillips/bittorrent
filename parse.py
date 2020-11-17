@@ -2,7 +2,7 @@ from bcoding import bencode, bdecode
 from torrent import Torrent
 from util.fileinfo import File, FileStructure
 
-class ParseTorrent(object):
+class PT(object):
 
     def __init__(self, path):
         self.path = path

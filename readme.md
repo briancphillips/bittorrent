@@ -11,20 +11,20 @@ Terms:
 Installation:
 
 ```
-$ pip -r requirements.txt
+$ pip3 install -r requirements.txt
 ```
 
 Usage is as follows:
 
 ```
-$ python client.py <filename>
+$ python3 client.py <filename>
 ```
 
 ##Example usage:
 Assuming there is a file named `file.torrent` stored in a subfolder named torrents, usage would be like this:
 
 ```
-$ python client.py torrents/file.torrent
+$ python3 client.py torrents/file.torrent
 ```
 
 Client create a `Downloads` folder within its working directory to store all torrent downloads. Each torrent file will receive its own folder within `Downloads` named the same thing as the main torrent filename.

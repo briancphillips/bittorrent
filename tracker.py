@@ -72,7 +72,6 @@ class Tracker(object):
 
         return msg, txn_id
 
-
     def send_request(self, e, url):
         print("Sending request to tracker ...")
         if url.startswith('http'):
