@@ -1,14 +1,22 @@
-BitTorrent client written in Python. Usage is as follows:
+BitTorrent client written in Python.
+
+Installation:
+
+```
+$ pip -r requirements.txt
+```
+
+Usage is as follows:
 
 ```
 $ python main.py <filename>
 ```
 
 ##Example usage:
-Assuming there is a file named `file.torrent` stored in the same directory as BitPy, usage would be like this:
+Assuming there is a file named `file.torrent` stored in a subfolder named torrents, usage would be like this:
 
 ```
-$ python main.py file.torrent
+$ python main.py torrents/file.torrent
 ```
 
 You should then see a screen like this:
