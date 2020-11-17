@@ -1,5 +1,15 @@
 BitTorrent client written in Python.
 
+Terms:
+
+```
+Queue size: All traffic processed by the system is in the form of network packets.
+
+Pieces: BitTorrent splits the file up into chunks called pieces, each of a certain size. Sometimes it's 256KB, sometimes it's 1MB. As each peer receives a piece, they become a seed of that piece for other peers. With BitTorrent, we do not have a single source to download from.
+
+
+```
+
 Installation:
 
 ```

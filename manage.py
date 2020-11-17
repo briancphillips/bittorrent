@@ -9,6 +9,9 @@ import os
 from util.filemanager import FileManager
 from util.filewriter import FileWriter
 
+
+
+
 class Connection(object):
     # Class to manage connections with peers
     TIMEOUT = 1
