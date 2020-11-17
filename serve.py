@@ -12,7 +12,7 @@ logger.addHandler(ch)
 
 
 
-loop = asyncio.get_event_loop()
+loop = asyncio.get_e_loop()
 logger.info(":: Setting Loop...")
 tracker = TrackerServer(local_addr=('0.0.0.0', 2255), loop=loop)
 logger.info(":: Setting up tracker at 0.0.0.0:2255 ...")

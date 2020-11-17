@@ -8,7 +8,7 @@ from bcoding import bencode, bdecode
 from peer import Peer
 from peer2 import Peer2
 
-class TrackerConnect(object):
+class Tracker(object):
 
     '''Class to connect to torrent tracker and get peer info.'''
 
@@ -20,70 +20,68 @@ class TrackerConnect(object):
         self.uploaded = 0
         self.downloaded = 0
         self.left = torrent.length - self.downloaded
-        self.resp = self.get_tracker(event='started')
+        self.resp = self.get_t(e='started')
 
-    def generate_payload(self, event):
+    def gen_p(self, e):
         return {'info_hash': self.info_hash,
                     'peer_id': self.peer_id,
                     'port': self.port,
                     'uploaded': self.uploaded,
                     'downloaded': self.downloaded,
                     'left': self.left,
-                    'event': event
+                    'e': e
                 }
 
-    def get_tracker(self, event):
+    def get_t(self, e):
         max_tracker_attempts = 3
         counter = 0
         response = False
         while not response and counter < max_tracker_attempts * len(self.torrent.tracker_urls):
-            response = self.try_next_tracker(counter, event)
+            response = self.next(counter, e)
             counter += 1
         if counter == max_tracker_attempts * len(self.torrent.tracker_urls):
             print('No working trackers found.')
 
-
-        # main_counter = 0
-        # response = {}
-        # for tracker_url in self.torrent.tracker_urls:
-        #     counter = 0
-        #     tracker_response = False
-        #     while not tracker_response and counter < max_tracker_attempts:
-        #         tracker_response = self.try_next_tracker(counter, event)
-        #         counter += 1
-        #         main_counter += 1
-        #     if 'peers' not in response:
-        #         response['peers'] = {}
-
-        #     if tracker_response:
-        #         if 'interval' not in response:
-        #             response['interval'] = tracker_response['interval']
-        #         else:
-        #             response['interval'] = max(response['interval'], tracker_response['interval'])
-
-        #         for key, peer in tracker_response['peers'].items():
-        #             if peer.ip not in response['peers']:
-        #                 response['peers'][peer.ip] = peer
-        #         tracker_response = False
-
-        #     if main_counter == max_tracker_attempts*len(self.torrent.tracker_urls):
-        #         print("No working trackers found.")
-
         return response
 
-    def try_next_tracker(self, counter, event):
+    def next(self, counter, e):
         url = self.torrent.tracker_urls[counter%len(self.torrent.tracker_urls)]
-        return self.send_request(event, url)
+        return self.send_request(e, url)
 
-    def send_request(self, event, url):
+    def conn_req(self):
+        conn_id = 0x41727101980 # default, required initial value to identify the protocol
+        action = 0x0 # 0 for connection request
+        txn_id = int(random.randrange(0, 2**32 - 1))
+        msg = conn_id.to_bytes(8, byteorder='big') + action.to_bytes(4, byteorder='big') + \
+                txn_id.to_bytes(4, byteorder='big')
+
+        return msg, txn_id
+
+    def comp_announce(self, conn_id, port, e):
+        action = 1
+        txn_id = int(random.randrange(0, 2**31 - 1))
+        ip = 0
+        key = int(random.randrange(0, 2**31 - 1))
+        num_want = 2**17
+
+        msg = conn_id + action.to_bytes(4, byteorder='big') + txn_id.to_bytes(4, byteorder='big') + \
+                self.info_hash + self.peer_id + self.downloaded.to_bytes(8, byteorder='big') + \
+                self.left.to_bytes(8, byteorder='big') + self.uploaded.to_bytes(8, byteorder='big') + \
+                e.to_bytes(4, byteorder='big') + ip.to_bytes(4, byteorder='big') + \
+                key.to_bytes(4, byteorder='big') + num_want.to_bytes(4, byteorder='big') + port.to_bytes(2, byteorder='big')
+
+        return msg, txn_id
+
+
+    def send_request(self, e, url):
         print("Sending request to tracker ...")
         if url.startswith('http'):
-            return self._send_http_request(event, url)
+            return self._send_http_request(e, url)
         elif url.startswith('udp'):
-            return self._send_udp_request(event, url)
+            return self._send_udp_request(e, url)
 
-    def _send_http_request(self, event, url):
-        payload = self.generate_payload(event)
+    def _send_http_request(self, e, url):
+        payload = self.gen_p(e)
         try:
             r = requests.get(url, params=payload, timeout=1)
             resp = bdecode(bytes(r.text, 'ISO-8859-1'))
@@ -107,12 +105,12 @@ class TrackerConnect(object):
             return False
 
 
-    def _send_udp_request(self, event, url):
+    def _send_udp_request(self, e, url):
         s_tracker = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s_tracker.settimeout(1)
         addr, port = self.parse_udp_url(url)
 
-        msg, txn_id = self.udp_connection_request()
+        msg, txn_id = self.conn_req()
 
         try:
             s_tracker.sendto(msg, (addr, int(port)))
@@ -135,17 +133,17 @@ class TrackerConnect(object):
         # Send announce message
         client_port = s_tracker.getsockname()[1]
 
-        events = {
+        es = {
             'none': 0,
             'completed': 1,
             'started': 2,
             'stopped': 3
         }
 
-        return self.send_udp_announce(response[8:], client_port, events[event], addr, port, s_tracker)
+        return self.send_announce(response[8:], client_port, es[e], addr, port, s_tracker)
 
-    def send_udp_announce(self, conn_id, client_port, event, addr, port, s_tracker):
-        msg, txn_id = self.compose_udp_announce(conn_id, client_port, event)
+    def send_announce(self, conn_id, client_port, e, addr, port, s_tracker):
+        msg, txn_id = self.comp_announce(conn_id, client_port, e)
 
         s_tracker.sendto(msg, (addr, int(port)))
 
@@ -189,27 +187,3 @@ class TrackerConnect(object):
     def parse_udp_url(self, url):
         port_ip = re.match(r'^udp://(.+):(\d+)', url).groups()
         return port_ip[0], port_ip[1]
-
-    def udp_connection_request(self):
-        conn_id = 0x41727101980 # default, required initial value to identify the protocol
-        action = 0x0 # 0 for connection request
-        txn_id = int(random.randrange(0, 2**32 - 1))
-        msg = conn_id.to_bytes(8, byteorder='big') + action.to_bytes(4, byteorder='big') + \
-                txn_id.to_bytes(4, byteorder='big')
-
-        return msg, txn_id
-
-    def compose_udp_announce(self, conn_id, port, event):
-        action = 1
-        txn_id = int(random.randrange(0, 2**31 - 1))
-        ip = 0
-        key = int(random.randrange(0, 2**31 - 1))
-        num_want = 2**17
-
-        msg = conn_id + action.to_bytes(4, byteorder='big') + txn_id.to_bytes(4, byteorder='big') + \
-                self.info_hash + self.peer_id + self.downloaded.to_bytes(8, byteorder='big') + \
-                self.left.to_bytes(8, byteorder='big') + self.uploaded.to_bytes(8, byteorder='big') + \
-                event.to_bytes(4, byteorder='big') + ip.to_bytes(4, byteorder='big') + \
-                key.to_bytes(4, byteorder='big') + num_want.to_bytes(4, byteorder='big') + port.to_bytes(2, byteorder='big')
-
-        return msg, txn_id

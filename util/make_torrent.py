@@ -10,11 +10,6 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-
-
-
-
-
 def make_torrent(location, comment):
 	try:
 		t = Torrent(
