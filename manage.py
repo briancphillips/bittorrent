@@ -5,7 +5,6 @@ import time
 from queue import Queue
 from threading import Thread, Lock, activeCount
 import os
-import keyboard
 
 from filemanager import FileManager
 from filewriter import FileWriter
@@ -80,10 +79,7 @@ class Connection(object):
         t.start()
 
     def maintain_peers(self):
-        while True:
-            if keyboard.is_pressed('q'):
-	            #self.close()
-                sys.exit(1)
+        while True:            
             percent_complete = self.file_manager.download_status()
             os.system('cls' if os.name=='nt' else 'clear')
 
